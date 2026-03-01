@@ -10,6 +10,9 @@ const notificationRoutes = require('./routes/notifications');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
+const messageRoutes = require('./routes/messages');
+// ...
+app.use('/api/messages', messageRoutes);
 
 // ── CORS ─────────────────────────────────────────────────
 app.use(cors({
