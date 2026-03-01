@@ -78,38 +78,18 @@ router.get('/:id/download', authenticate, async (req, res) => {
 
 // ── GET /api/documents/my/purchased — mes documents achetés ─
 // Mes documents achetés
-router.get('/my/purchased', authenticateToken, async (req, res) => {
+rrouter.get('/my/purchased', authenticateToken, async (req, res) => {
   try {
-    const userId = req.user.id;
-
     const { data, error } = await supabase
       .from('user_documents')
       .select(`
-        id,
-        certificate_number,
-        downloaded_at,
-        created_at,
-        order_id,
-        documents (
-          id,
-          title,
-          description,
-          cover_url,
-          file_url,
-          author,
-          pages,
-          language,
-          category
-        )
+        id, certificate_url, downloaded_at, created_at, order_id,
+        documents ( id, title, description, cover_url, file_url, author, pages, language, category )
       `)
-      .eq('user_id', userId)
+      .eq('user_id', req.user.id)
       .order('created_at', { ascending: false });
 
-    if (error) {
-      console.error('Erreur purchased docs:', error);
-      return res.status(500).json({ error: error.message });
-    }
-
+    if (error) throw error;
     return res.json(data || []);
   } catch (err) {
     console.error('Erreur my/purchased:', err);
