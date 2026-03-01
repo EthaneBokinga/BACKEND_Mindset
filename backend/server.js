@@ -2,33 +2,21 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
+
 const authRoutes = require('./routes/auth');
 const documentRoutes = require('./routes/documents');
 const orderRoutes = require('./routes/orders');
 const adminRoutes = require('./routes/admin');
 const notificationRoutes = require('./routes/notifications');
+const messageRoutes = require('./routes/messages');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
-const messageRoutes = require('./routes/messages');
-// ...
-app.use('/api/messages', messageRoutes);
 
 // ── CORS ─────────────────────────────────────────────────
 app.use(cors({
   origin: function(origin, callback) {
-    const allowed = [
-      'http://localhost:5173',
-      'http://localhost:3000',
-      'https://frontend-mindset.vercel.app',
-      'https://mindset-shop.vercel.app',
-      process.env.FRONTEND_URL
-    ];
-    if (!origin || allowed.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(null, true); // accepte tout pour l'instant
-    }
+    callback(null, true);
   },
   credentials: true
 }));
@@ -42,6 +30,7 @@ app.use('/api/documents',     documentRoutes);
 app.use('/api/orders',        orderRoutes);
 app.use('/api/admin',         adminRoutes);
 app.use('/api/notifications', notificationRoutes);
+app.use('/api/messages',      messageRoutes);
 
 // ── Health check ─────────────────────────────────────────
 app.get('/api/health', (req, res) => {
