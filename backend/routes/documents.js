@@ -77,21 +77,43 @@ router.get('/:id/download', authenticate, async (req, res) => {
 });
 
 // ── GET /api/documents/my/purchased — mes documents achetés ─
-router.get('/my/purchased', authenticate, async (req, res) => {
+// Mes documents achetés
+router.get('/my/purchased', authenticateToken, async (req, res) => {
   try {
+    const userId = req.user.id;
+
     const { data, error } = await supabase
       .from('user_documents')
       .select(`
-        id, certificate_url, certificate_number, downloaded_at, created_at,
-        documents(id, title, description, cover_url, author, pages),
-        orders(order_number, invoice_number, confirmed_at)
+        id,
+        certificate_number,
+        downloaded_at,
+        created_at,
+        order_id,
+        documents (
+          id,
+          title,
+          description,
+          cover_url,
+          file_url,
+          author,
+          pages,
+          language,
+          category
+        )
       `)
-      .eq('user_id', req.user.id)
+      .eq('user_id', userId)
       .order('created_at', { ascending: false });
-    if (error) throw error;
-    res.json(data);
+
+    if (error) {
+      console.error('Erreur purchased docs:', error);
+      return res.status(500).json({ error: error.message });
+    }
+
+    return res.json(data || []);
   } catch (err) {
-    res.status(500).json({ error: 'Erreur chargement mes documents' });
+    console.error('Erreur my/purchased:', err);
+    return res.status(500).json({ error: err.message });
   }
 });
 
